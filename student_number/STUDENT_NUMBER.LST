@@ -1,0 +1,161 @@
+Turbo Assembler	 Version 5.3	    01-03-26 12:05:49	    Page 1
+STUDENT_NUMBER.asm
+
+
+
+      1	0000			     DATA SEGMENT
+      2	0000  01 02 41 42		 DT1 DB	1,2,'AB'
+      3	      =0004			 COUNT EQU $-DT1
+      4	0004  0001 0002	4142		 DT2 DW	1,2,'AB'
+      5	000A  0004r			 DT3 DW	DT2
+      6	000C  0008			 DT4 DW	$-DT2
+      7	000E  08*(??)			 SN DB 8 DUP(?)
+      8	0016  1E			 NAM DB	30
+      9	0017  00			     DB	0
+     10	0018  1E*(??)			     DB	30 DUP(?)
+     11	0036  59 4F 55 52 20 53	54+	 STS DB	'YOUR STUDNT NUMBER IS:',0DH,0AH,'$'
+     12	      55 44 4E 54 20 4E	55+
+     13	      4D 42 45 52 20 49	53+
+     14	      3A 0D 0A 24
+     15	004F  59 4F 55 52 20 4E	41+	 NAMS DB 'YOUR NAME IS:',0DH,0AH,'$'
+     16	      4D 45 20 49 53 3A	0D+
+     17	      0A 24
+     18	005F			     DATA ENDS
+     19
+     20	0000			     STK1 SEGMENT
+     21	0000  64*(??)			 ST1 DB	100 DUP(?)
+     22	0064			     STK1 ENDS
+     23
+     24	0000			     CODE SEGMENT
+     25	0000			     MAIN PROC FAR
+     26				     ASSUME CS:CODE,DS:DATA
+     27	0000			     START:
+     28	0000  B8 0000s			 MOV AX,STK1
+     29	0003  8E D0			 MOV SS,AX
+     30	0005  BC 0064			 MOV SP,SIZE ST1
+     31	0008  B8 0000s			 MOV AX,DATA
+     32	000B  8E D8			 MOV DS,AX
+     33
+     34	000D  A0 0000r			 MOV AL,[DT1]
+     35	0010  0C 30			 OR AL,30H
+     36	0012  8A D0			 MOV DL,AL
+     37	0014  B4 02			 MOV AH,2
+     38	0016  CD 21			 INT 21H
+     39	0018  A0 0002r			 MOV AL,[DT1+2]
+     40	001B  8A D0			 MOV DL,AL
+     41	001D  B4 02			 MOV AH,2
+     42	001F  CD 21			 INT 21H
+     43
+     44	0021  B2 0D			 MOV DL, 0DH
+     45	0023  B4 02			 MOV AH, 2
+     46	0025  CD 21			 INT 21H
+     47	0027  B2 0A			 MOV DL, 0AH
+     48	0029  B4 02			 MOV AH, 2
+     49	002B  CD 21			 INT 21H
+     50
+     51	002D  B9 0008			 MOV CX,8
+     52	0030  B3 00			 MOV BL,0
+     53	0032			     AGN1:
+     54	0032  B4 01			 MOV AH,1
+     55	0034  CD 21			 INT 21H
+     56	0036  88 87 000Er		 MOV [SN+BX],AL
+     57	003A  FE C3			 INC BL
+Turbo Assembler	 Version 5.3	    01-03-26 12:05:49	    Page 2
+STUDENT_NUMBER.asm
+
+
+
+     58	003C  E2 F4			 LOOP AGN1
+     59
+     60	003E  B2 0D			 MOV DL, 0DH
+     61	0040  B4 02			 MOV AH, 2
+     62	0042  CD 21			 INT 21H
+     63	0044  B2 0A			 MOV DL, 0AH
+     64	0046  B4 02			 MOV AH, 2
+     65	0048  CD 21			 INT 21H
+     66
+     67	004A  BA 0016r			 MOV DX,OFFSET NAM
+     68	004D  B4 0A			 MOV AH,0AH
+     69	004F  CD 21			 INT 21H
+     70
+     71	0051  BA 0036r			 MOV DX,OFFSET STS
+     72	0054  B4 09			 MOV AH,9
+     73	0056  CD 21			 INT 21H
+     74	0058  B9 0008			 MOV CX,8
+     75	005B  B3 00			 MOV BL,0
+     76	005D			     AGN2:
+     77	005D  8A 97 000Er		 MOV DL,[SN+BX]
+     78	0061  B4 02			 MOV AH,02H
+     79	0063  CD 21			 INT 21H
+     80	0065  FE C3			 INC BL
+     81	0067  E2 F4			 LOOP AGN2
+     82
+     83	0069  B2 0D			 MOV DL,0DH
+     84	006B  B4 02			 MOV AH,2
+     85	006D  CD 21			 INT 21H
+     86	006F  B2 0A			 MOV DL,0AH
+     87	0071  B4 02			 MOV AH,2
+     88	0073  CD 21			 INT 21H
+     89
+     90	0075  BA 004Fr			 MOV DX,OFFSET NAMS
+     91	0078  B4 09			 MOV AH,09H
+     92	007A  CD 21			 INT 21H
+     93
+     94	007C  BE 0018r			 LEA SI,NAM+2
+     95	007F  8A 0E 0017r		 MOV CL,[NAM+1]
+     96	0083  B5 00			 MOV CH,0
+     97	0085  03 F1			 ADD SI,CX
+     98	0087  C7 04 0024		 MOV [SI],'$'
+*Warning* STUDENT_NUMBER.asm(93) Argument needs	type override
+     99	008B  BA 0018r			 LEA DX,NAM+2
+    100	008E  B4 09			 MOV AH,09H
+    101	0090  CD 21			 INT 21H
+    102
+    103	0092  B4 4C			 MOV AH,4CH
+    104	0094  CD 21			 INT 21H
+    105	0096			     MAIN ENDP
+    106	0096			     CODE ENDS
+    107					 END START
+Turbo Assembler	 Version 5.3	    01-03-26 12:05:49	    Page 3
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "01-03-26"
+??FILENAME			  Text	 "STUDENT_NUMBER"
+??TIME				  Text	 "12:05:49"
+??VERSION			  Number 0503
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODE
+@FILENAME			  Text	 STUDENT_NUMBER
+@WORDSIZE			  Text	 2
+AGN1				  Near16 CODE:0032
+AGN2				  Near16 CODE:005D
+COUNT				  Number 0004
+DT1				  Byte	 DATA:0000
+DT2				  Word	 DATA:0004
+DT3				  Word	 DATA:000A
+DT4				  Word	 DATA:000C
+MAIN				  Far16	 CODE:0000
+NAM				  Byte	 DATA:0016
+NAMS				  Byte	 DATA:004F
+SN				  Byte	 DATA:000E
+ST1				  Byte	 STK1:0000
+START				  Near16 CODE:0000
+STS				  Byte	 DATA:0036
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODE				  16  0096 Para	  none
+DATA				  16  005F Para	  none
+STK1				  16  0064 Para	  none
+Turbo Assembler	 Version 5.3	    01-03-26 12:05:49	    Page 4
+Error Summary
+
+
+
+*Warning* STUDENT_NUMBER.asm(93) Argument needs	type override
+

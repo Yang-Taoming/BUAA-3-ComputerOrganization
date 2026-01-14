@@ -1,0 +1,93 @@
+Turbo Assembler	 Version 5.3	    12-30-25 10:31:37	    Page 1
+1.asm
+
+
+
+      1	0000			     DATA SEGMENT
+      2	0000  25			  DT1	DB  37
+      3	0001  64			  DT2	DB  64H
+      4	0002  ABCD			  DT3	DW  0ABCDH
+      5	0004  8765			  DT4	DW  8765H
+      6	      =00A7			  DT5	EQU 0A7H
+      7	0006			     DATA ENDS
+      8
+      9	0000			     STKS SEGMENT  STACK
+     10	0000  64*(0000)			  DW  100 DUP(0)
+     11	00C8			     STKS ENDS
+     12
+     13	0000			     CODE SEGMENT
+     14					  ASSUME  CS:CODE, DS:DATA, SS:STKS
+     15	0000			     MAIN PROC FAR
+     16					 ;初始化及数据段、堆栈段观察记录
+     17	0000  B8 0000s			  MOV  AX, STKS
+     18	0003  8E D0			  MOV  SS, AX
+     19	0005  BC 00C8			  MOV  SP, 100*2
+     20
+     21	0008  B8 0000s			  MOV  AX, DATA
+     22	000B  8E D8			  MOV  DS, AX
+     23
+     24					 ;加减法、PSW实验
+     25	000D  A1 0002r			  MOV  AX, DT3
+     26	0010  03 06 0004r		  ADD  AX, DT4
+     27	0014  A3 0004r			  MOV  DT4,AX
+     28
+     29	0017  A0 0000r			       MOV  AL,	DT1
+     30	001A  8A 1E 0001r		  MOV  BL, DT2
+     31	001E  2A C3			  SUB  AL, BL
+     32	0020  A2 0000r			  MOV  DT1, AL
+     33
+     34					  ;比较、条件转移、CALL指令以及堆栈实验
+     35	0023  3B 06 0002r		  CMP  AX, DT3
+     36	0027  77 04			  JA   NEXT1
+     37	0029  50			  PUSH AX
+     38	002A  EB 05 90			  JMP  NEXT2
+     39	002D			     NEXT1:
+     40	002D  FF 36 0002r		   PUSH	DT3
+     41	0031			     NEXT2:
+     42	0031  5A			   POP	DX
+     43	0032  E8 0004			   CALL	 SPRC
+     44
+     45	0035  B4 4C			   MOV	AH, 4CH
+     46	0037  CD 21			   INT	21H
+     47
+     48	0039			     MAIN ENDP
+     49
+     50	0039			     SPRC PROC NEAR
+     51	0039  B1 03			  MOV  CL, 3
+     52	003B  D3 C2			  ROL  DX, CL
+     53	003D  C3			  RET
+     54	003E			     SPRC ENDP
+     55	003E			     CODE ENDS
+     56				     END  MAIN
+Turbo Assembler	 Version 5.3	    12-30-25 10:31:37	    Page 2
+Symbol Table
+
+
+
+
+Symbol Name			  Type	 Value
+
+??DATE				  Text	 "12-30-25"
+??FILENAME			  Text	 "1	  "
+??TIME				  Text	 "10:31:37"
+??VERSION			  Number 0503
+@CPU				  Text	 0101H
+@CURSEG				  Text	 CODE
+@FILENAME			  Text	 1
+@WORDSIZE			  Text	 2
+DT1				  Byte	 DATA:0000
+DT2				  Byte	 DATA:0001
+DT3				  Word	 DATA:0002
+DT4				  Word	 DATA:0004
+DT5				  Number 00A7
+MAIN				  Far16	 CODE:0000
+NEXT1				  Near16 CODE:002D
+NEXT2				  Near16 CODE:0031
+SPRC				  Near16 CODE:0039
+
+Groups & Segments		  Bit Size Align  Combine Class
+
+CODE				  16  003E Para	  none
+DATA				  16  0006 Para	  none
+STKS				  16  00C8 Para	  Stack
+

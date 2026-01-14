@@ -1,0 +1,102 @@
+DATA SEGMENT
+    DT1 DB 1,2,'AB'
+    COUNT EQU $-DT1
+    DT2 DW 1,2,'AB'
+    DT3 DW DT2
+    DT4 DW $-DT2
+    SN DB 8 DUP(?)
+    NAM DB 30
+        DB 0
+        DB 30 DUP(?)
+    STS DB 'YOUR STUDNT NUMBER IS:',0DH,0AH,'$'
+    NAMS DB 'YOUR NAME IS:',0DH,0AH,'$'
+DATA ENDS
+
+STK1 SEGMENT
+    ST1 DB 100 DUP(?)
+STK1 ENDS
+
+CODE SEGMENT
+MAIN PROC FAR
+ASSUME CS:CODE,DS:DATA
+START:
+    MOV AX,STK1
+    MOV SS,AX
+    MOV SP,SIZE ST1
+    MOV AX,DATA
+    MOV DS,AX
+    
+    MOV AL,[DT1]
+    OR AL,30H
+    MOV DL,AL
+    MOV AH,2
+    INT 21H
+    MOV AL,[DT1+2]
+    MOV DL,AL
+    MOV AH,2
+    INT 21H
+    
+    MOV DL, 0DH
+    MOV AH, 2
+    INT 21H
+    MOV DL, 0AH
+    MOV AH, 2
+    INT 21H
+    
+    MOV CX,8
+    MOV BL,0
+AGN1:
+    MOV AH,1
+    INT 21H
+    MOV [SN+BX],AL
+    INC BL
+    LOOP AGN1
+    
+    MOV DL, 0DH
+    MOV AH, 2
+    INT 21H
+    MOV DL, 0AH
+    MOV AH, 2
+    INT 21H
+    
+    MOV DX,OFFSET NAM
+    MOV AH,0AH
+    INT 21H
+    
+    MOV DX,OFFSET STS
+    MOV AH,9
+    INT 21H
+    MOV CX,8
+    MOV BL,0
+AGN2:
+    MOV DL,[SN+BX]
+    MOV AH,02H
+    INT 21H
+    INC BL
+    LOOP AGN2
+    
+    MOV DL,0DH
+    MOV AH,2
+    INT 21H
+    MOV DL,0AH
+    MOV AH,2
+    INT 21H
+    
+    MOV DX,OFFSET NAMS
+    MOV AH,09H
+    INT 21H
+    
+    LEA SI,NAM+2
+    MOV CL,[NAM+1]
+    MOV CH,0
+    ADD SI,CX
+    MOV [SI],'$'
+    LEA DX,NAM+2
+    MOV AH,09H
+    INT 21H
+    
+    MOV AH,4CH
+    INT 21H
+MAIN ENDP
+CODE ENDS
+    END START
